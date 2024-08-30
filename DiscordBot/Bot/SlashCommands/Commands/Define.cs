@@ -43,7 +43,6 @@ public class Define : ISlashCommand
                 pageBuilder.WithFooter(
                     $"Page {sanitizedDefinitions.IndexOf(definition) + 1}/{sanitizedDefinitions.Count} | Requested By: {command.User.Username ?? command.User.GlobalName}");
                 pages.Add(pageBuilder);
-                
             }
 
             var paginator = new StaticPaginatorBuilder()
@@ -57,9 +56,9 @@ public class Define : ISlashCommand
                     { new Emoji("\u23e9"), PaginatorAction.SkipToEnd },
                 })
                 .WithFooter(PaginatorFooter.None)
+                .WithActionOnTimeout(ActionOnStop.DisableInput)
                 .Build();
-            await GetInteractiveService().SendPaginatorAsync(paginator, command.Channel);
-            await command.RespondAsync($"Sent the definition for {word}", ephemeral: true);
+            var result = await GetInteractiveService().SendPaginatorAsync(paginator, command);
         }
         catch (Exception e)
         {

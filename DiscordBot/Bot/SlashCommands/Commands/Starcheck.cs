@@ -29,7 +29,7 @@ public class Starcheck : ISlashCommand
             user = (SocketGuildUser) command.User;
         }
         
-        int stars = await context.Connection().QuerySingleAsync<int>("SELECT get_user_stars(@Message, @Guild)", new { Message = user.Mention, Guild = command.GuildId.ToString() });;
+        int stars = await context.Connection().QuerySingleAsync<int>("SELECT get_user_stars(@Message, @Guild)", new { Message = user.Mention, Guild = command.GuildId.ToString() });
 
         await command.RespondAsync($"{user.Mention} has {string.Format($"{stars:n0}")}{server.star_emote}", allowedMentions: AllowedMentions.None);
     }

@@ -23,6 +23,9 @@ public class CommandHandler
         _commands.Add(Restart.Name, new Restart());
         _commands.Add(EightBall.Name, new EightBall());
         _commands.Add(Define.Name, new Define());
+        _commands.Add(Warn.Name, new Warn());
+        _commands.Add(AuditUser.Name, new AuditUser());
+        _commands.Add(AuditCase.Name, new AuditCase());
     }
     
     public static async Task SlashCommandHandler(SocketSlashCommand command)

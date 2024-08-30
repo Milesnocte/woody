@@ -26,6 +26,8 @@ public class Reactions
                 .QuerySingleAsync<Server>($"SELECT * FROM servers WHERE guild_id = '{guildId}' LIMIT 1");
             string serverStar = server.star_emote;
             
+            if(server.star_channel == Reaction.Channel.Id.ToString()) return;
+            
             if(server.star_channel == null) return; // If no channel is configured do nothing
             
             string emote = Reaction.Emote.ToString();
@@ -34,7 +36,10 @@ public class Reactions
             switch (emote)
             {
                 case "<:debugfroot:936344152004755456>":
-                    starsToAdd = 0;
+                    if (Reaction.User.Value.Id.ToString() == "225772174336720896")
+                    {
+                        starsToAdd = 0;
+                    }
                     break;
                 case var value when value == serverStar:
                     starsToAdd = 1;
@@ -60,12 +65,24 @@ public class Reactions
 
                 if (message.ReferencedMessage != null)
                 {
-                    fields.Add(new EmbedFieldBuilder()
+                    if (string.IsNullOrEmpty(message.ReferencedMessage.Content))
                     {
-                        Name = "Reply to",
-                        Value = message.ReferencedMessage.Content,
-                        IsInline = false
-                    });
+                        fields.Add(new EmbedFieldBuilder()
+                        {
+                            Name = "Reply to",
+                            Value = "[Attachment]",
+                            IsInline = false
+                        });
+                    }
+                    else
+                    {
+                        fields.Add(new EmbedFieldBuilder()
+                        {
+                            Name = "Reply to",
+                            Value = message.ReferencedMessage.Content,
+                            IsInline = false
+                        });
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(message.Content))
@@ -144,6 +161,8 @@ public class Reactions
             Server server = await context.Connection()
                 .QuerySingleAsync<Server>($"SELECT * FROM servers WHERE guild_id = '{guildId}' LIMIT 1");
             string serverStar = server.star_emote;
+            
+            if(server.star_channel == Reaction.Channel.Id.ToString()) return;
             
             if(server.star_channel == null) return; 
 

@@ -42,18 +42,19 @@ public class CommandFactory
 
     private async void RegisterCommands(DiscordSocketClient client)
     {
-        ApplicationCommandProperties[] commands = new ApplicationCommandProperties[Commands.Count];
-        
+        ApplicationCommandProperties[] commands = new ApplicationCommandProperties[Commands.Count-1];
+
+        int counter = 0;
         foreach (var slashCommandBuilder in Commands)
         {
-            commands[Commands.IndexOf(slashCommandBuilder)] = slashCommandBuilder.Build();
+            if (slashCommandBuilder.Name == "restart")
+            {
+                continue;
+            }
+            commands[counter] = slashCommandBuilder.Build();
+            counter++;
         }
 
         await client.BulkOverwriteGlobalApplicationCommandsAsync(commands);
-        
-        foreach (var clientGuild in client.Guilds)
-        {
-            await clientGuild.DeleteApplicationCommandsAsync();
-        }
     }
 }
