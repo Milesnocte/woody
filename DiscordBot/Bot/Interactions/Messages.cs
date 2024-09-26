@@ -88,19 +88,42 @@ public class Messages
     {
         try
         {
-            var guild = _socketClient.GetGuild(776380239961260052);
-            if (guild == null) return;
+            var beanzone = _socketClient.GetGuild(776380239961260052);
+            var rwh = _socketClient.GetGuild(433825343485247499);
+            if (beanzone == null) return;
             
-            List<Levels> members =
+            List<Levels> bzMembers =
                 (await _database.Connection().QueryAsync<Levels>("SELECT * FROM get_guild_users_xp(@Server)",
                     new { Server = "776380239961260052" }, commandType: CommandType.Text))
                 .Where(x => _usersToUpdate.Contains(x.Member)).Distinct().ToList();
             
+            List<Levels> rwhMembers =
+                (await _database.Connection().QueryAsync<Levels>("SELECT * FROM get_guild_users_xp(@Server)",
+                    new { Server = "433825343485247499" }, commandType: CommandType.Text))
+                .Where(x => _usersToUpdate.Contains(x.Member)).Distinct().ToList();
+            
             _usersToUpdate.Clear();
             
-            Console.WriteLine($"Updating {members.Count} beanzone members");
+            // RWH Ranks
+            foreach (var rwhMember in rwhMembers)
+            {
+                var user = rwh.GetUser(Convert.ToUInt64(rwhMember.Member));
+                if (user == null) continue;
+                
+                List<ulong> rolesToAdd = new();
+                int level = GetLevel(rwhMember.Xp);
+                
+                if (level >= 5) rolesToAdd.Add(1288931087766261790);
+                
+                await user.ModifyAsync(x => x.RoleIds = user.Roles.Select(r => r.Id)
+                    .Except(new[] { user.Guild.Id })
+                    .Concat(rolesToAdd)
+                    .Distinct()
+                    .ToList());
+            }
             
-            //Ranks
+            
+            // BZ Ranks
             ulong tadpole = 1114237294988230808;
             ulong froglet = 857136982692724756;
             ulong frog = 857137043355992106;
@@ -108,13 +131,13 @@ public class Messages
             ulong suitedFrog = 857137344318668810;
             ulong rainbowFrog = 882488807776202762;
 
-            foreach (var member in members)
+            foreach (var bzMember in bzMembers)
             {
-                var user = guild.GetUser(Convert.ToUInt64(member.Member));
+                var user = beanzone.GetUser(Convert.ToUInt64(bzMember.Member));
                 if (user == null) continue;
                 
                 List<ulong> rolesToAdd = new();
-                int level = GetLevel(member.Xp);
+                int level = GetLevel(bzMember.Xp);
 
                 rolesToAdd.Add(tadpole);
                 if (level >= 5) rolesToAdd.Add(froglet);
